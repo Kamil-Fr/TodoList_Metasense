@@ -7,6 +7,23 @@ const taskList = document.getElementById("taskList");
 let currentTasks = [];
 let activeFilter = "Toutes";
 
+//Conteneur notifications
+const notificationContainer = document.createElement("div");
+notificationContainer.id = "notificationContainer";
+document.body.insertBefore(notificationContainer, document.body.firstChild);
+
+function showNotification(message, type = "success") {
+  const notif = document.createElement("div");
+  notif.textContent = message;
+  notif.className = `notification ${type}`;
+  notificationContainer.appendChild(notif);
+
+  setTimeout(() => {
+    notif.classList.add("fade-out");
+    notif.addEventListener("transitionend", () => notif.remove());
+  }, 2000);
+}
+
 //Boutons de filtre
 const filterContainer = document.createElement("div");
 ["Toutes", "En cours", "Terminées"].forEach((filter) => {
@@ -29,23 +46,26 @@ function addTaskToUI(task) {
   textSpan.textContent = task.name + (task.completed ? " ✓" : " ✗"); // Affiche l'état de la tâche
   li.appendChild(textSpan);
 
-  //
-  textSpan.addEventListener('dblclick', () => {
-    const input = document.createElement('input');
-    input.type = 'text';
+  //Animation fade-in
+  li.classList.add("fade-in");
+
+  //Modifier une tâche
+  textSpan.addEventListener("dblclick", () => {
+    const input = document.createElement("input");
+    input.type = "text";
     input.value = task.name;
     li.replaceChild(input, textSpan);
     input.focus();
 
     let isSaving = false; // Flag pour éviter les sauvegardes multiples
     const saveEdit = () => {
-      if (isSaving) return; 
+      if (isSaving) return;
       isSaving = true;
 
       const newName = input.value.trim();
 
       if (!newName) {
-        alert("Le nom de la tâche ne peut pas être vide");
+        showNotification("Le nom de la tâche ne peut pas être vide", "error");
         isSaving = false;
         return;
       }
@@ -55,23 +75,25 @@ function addTaskToUI(task) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newName }),
       })
-        .then(res => res.json())
+        .then((res) => res.json())
         .then((updated) => {
           const index = currentTasks.findIndex((t) => t.id === updated.id);
           currentTasks[index] = updated;
           renderTasks(currentTasks);
+          showNotification("Tâche modifiée avec succès", "success");
         })
-        .catch(() => alert("Erreur de connexion au serveur"));
+        .catch(() =>
+          showNotification("Erreur de connexion au serveur", "error"),
+        );
     };
-   
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
         saveEdit();
       }
     });
-     input.addEventListener('blur', saveEdit);
+    input.addEventListener("blur", saveEdit);
   });
-
 
   // Ajouter les boutons Terminer et Supprimer à chaque tâche
   //Terminer la tâche
@@ -110,14 +132,14 @@ function loadTasks() {
       currentTasks = tasks;
       renderTasks(currentTasks);
     })
-    .catch(() => alert("Échec du chargement des tâches"));
+    .catch(() => showNotification("Échec du chargement des tâches", "error"));
 }
 
 // Ajouter une tâche
 function handleAddTask() {
   const name = taskInput.value.trim();
   if (!name) {
-    alert("Le nom de la tâche ne peut pas être vide");
+    showNotification("Le nom de la tâche ne peut pas être vide", "error");
     return;
   }
 
@@ -129,14 +151,14 @@ function handleAddTask() {
     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
-        alert(data.error || "Échec de l'ajout de la tâche");
+        showNotification(data.error || "Échec de l'ajout de la tâche", "error");
         return;
       }
       currentTasks.push(data);
       taskInput.value = "";
       renderTasks(currentTasks);
     })
-    .catch(() => alert("Erreur de connexion au serveur"));
+    .catch(() => showNotification("Erreur de connexion au serveur", "error"));
 }
 
 // Ajouter l'événement de clic pour le bouton d'ajout
@@ -166,8 +188,12 @@ function toggleTask(id) {
       const index = currentTasks.findIndex((task) => task.id === id);
       currentTasks[index] = updated;
       renderTasks(currentTasks);
+      showNotification(
+        updated.completed ? "Tâche annulée" : "Tâche terminée",
+        "success",
+      );
     })
-    .catch(() => alert("Erreur de connexion au serveur"));
+    .catch(() => showNotification("Erreur de connexion au serveur", "error"));
 }
 
 // Supprimer une tâche
@@ -176,13 +202,37 @@ function deleteTask(id) {
     .then(async (res) => {
       if (!res.ok) {
         const data = await res.json();
-        alert(data.error || "Échec de la suppression");
+        showNotification(data.error || "Échec de la suppression", "error");
         return;
       }
-      currentTasks = currentTasks.filter((task) => task.id !== id);
-      renderTasks(currentTasks);
+      const li = document.querySelector(`li[data-id="${id}"]`);
+
+      const removeTask = () => {
+        currentTasks = currentTasks.filter((task) => task.id !== id);
+        renderTasks(currentTasks);
+        showNotification("Tâche supprimée avec succès", "success");
+      };
+
+      if (li) {
+        //Animation fade-out
+        li.classList.add("fade-out");
+        let handled = false;
+        li.addEventListener("transitionend", () => {
+          if (handled) return;
+          handled = true;
+          removeTask();
+        });
+        
+        setTimeout(() => {
+          if (handled) return;
+          handled = true;
+          removeTask();
+        }, 350);
+      } else {
+        removeTask();
+      }
     })
-    .catch(() => alert("Erreur de connexion au serveur"));
+    .catch(() => showNotification("Erreur de connexion au serveur", "error"));
 }
 
 // Initialisation de l'application

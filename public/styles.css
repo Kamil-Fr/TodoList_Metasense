@@ -24,3 +24,48 @@ body {
     border-bottom: 1px solid #ddd;
   }
   
+/* Notifications */
+#notificationContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.notification {
+  background-color: #4caf50; /* success green */
+  color: white;
+  padding: 8px 12px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.notification.error {
+  background-color: #f44336;
+}
+
+.notification.fade-out {
+  opacity: 0;
+}
+
+/* Animations pour les tâches */
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-5px); }
+}
