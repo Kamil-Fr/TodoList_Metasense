@@ -2,7 +2,6 @@
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
-const themeToggle = document.getElementById("themeToggle");
 
 //Stockage de toutes les tâches dans la mémoire frontale
 let currentTasks = [];
@@ -26,6 +25,13 @@ function showNotification(message, type = "success") {
 }
 
 //Dark Mode
+const themeToggle = document.createElement("button");
+themeToggle.id = "themeToggle";
+themeToggle.textContent = "🌙"; // domyślnie moon
+document.body.insertBefore(themeToggle, document.body.firstChild);
+
+themeToggle.addEventListener("click", toggleTheme);
+
 function toggleTheme() {
   document.body.classList.toggle("dark-mode");
 
@@ -34,8 +40,6 @@ function toggleTheme() {
 
   themeToggle.textContent = isDark ? "☀️" : "🌙";
 }
-
-themeToggle.addEventListener("click", toggleTheme);
 
 function initTheme() {
   const savedTheme = localStorage.getItem("theme");
