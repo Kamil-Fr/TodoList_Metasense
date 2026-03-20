@@ -24,7 +24,54 @@ taskList.parentNode.insertBefore(filterContainer, taskList);
 function addTaskToUI(task) {
   const li = document.createElement("li");
   li.dataset.id = task.id;
-  li.textContent = task.name + (task.completed ? " ✓" : " ✗"); // Affiche l'état de la tâche
+
+  const textSpan = document.createElement("span");
+  textSpan.textContent = task.name + (task.completed ? " ✓" : " ✗"); // Affiche l'état de la tâche
+  li.appendChild(textSpan);
+
+  //
+  textSpan.addEventListener('dblclick', () => {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = task.name;
+    li.replaceChild(input, textSpan);
+    input.focus();
+
+    let isSaving = false; // Flag pour éviter les sauvegardes multiples
+    const saveEdit = () => {
+      if (isSaving) return; 
+      isSaving = true;
+
+      const newName = input.value.trim();
+
+      if (!newName) {
+        alert("Le nom de la tâche ne peut pas être vide");
+        isSaving = false;
+        return;
+      }
+
+      fetch(`/tasks/${task.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName }),
+      })
+        .then(res => res.json())
+        .then((updated) => {
+          const index = currentTasks.findIndex((t) => t.id === updated.id);
+          currentTasks[index] = updated;
+          renderTasks(currentTasks);
+        })
+        .catch(() => alert("Erreur de connexion au serveur"));
+    };
+   
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        saveEdit();
+      }
+    });
+     input.addEventListener('blur', saveEdit);
+  });
+
 
   // Ajouter les boutons Terminer et Supprimer à chaque tâche
   //Terminer la tâche
@@ -98,7 +145,7 @@ addTaskBtn.addEventListener("click", () => {
 });
 
 // Ajouter l'événement de pression de touche pour l'entrée de tâche
-taskInput.addEventListener("keypress", (e) => {
+taskInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     handleAddTask();
   }
@@ -138,4 +185,5 @@ function deleteTask(id) {
     .catch(() => alert("Erreur de connexion au serveur"));
 }
 
+// Initialisation de l'application
 loadTasks();
