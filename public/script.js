@@ -2,6 +2,7 @@
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
+const themeToggle = document.getElementById("themeToggle");
 
 //Stockage de toutes les tâches dans la mémoire frontale
 let currentTasks = [];
@@ -23,6 +24,29 @@ function showNotification(message, type = "success") {
     notif.addEventListener("transitionend", () => notif.remove());
   }, 2000);
 }
+
+//Dark Mode
+function toggleTheme() {
+  document.body.classList.toggle("dark-mode");
+
+  const isDark = document.body.classList.contains("dark-mode");
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+
+  themeToggle.textContent = isDark ? "☀️" : "🌙";
+}
+
+themeToggle.addEventListener("click", toggleTheme);
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("theme");
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    themeToggle.textContent = "☀️";
+  }
+}
+
+initTheme();
 
 //Boutons de filtre
 const filterContainer = document.createElement("div");
@@ -222,7 +246,7 @@ function deleteTask(id) {
           handled = true;
           removeTask();
         });
-        
+
         setTimeout(() => {
           if (handled) return;
           handled = true;

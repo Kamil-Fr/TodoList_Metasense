@@ -69,3 +69,30 @@ body {
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(-5px); }
 }
+
+/* Dark Mode */
+.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.dark-mode li {
+  border-bottom: 1px solid #444;
+}
+
+.dark-mode input {
+  background-color: #1e1e1e;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.dark-mode button {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+#themeToggle {
+  margin-bottom: 15px;
+  cursor: pointer;
+}
