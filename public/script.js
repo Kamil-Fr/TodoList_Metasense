@@ -3,9 +3,10 @@ const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
 
-//Stockage de toutes les tâches dans la mémoire frontale
+//Application state (client-side): tasks list, active filter and sorting option
 let currentTasks = [];
 let activeFilter = "Toutes";
+let currentSort = "date_desc"; 
 
 //Conteneur notifications
 const notificationContainer = document.createElement("div");
@@ -64,6 +65,53 @@ const filterContainer = document.createElement("div");
   filterContainer.appendChild(btn);
 });
 taskList.parentNode.insertBefore(filterContainer, taskList);
+
+//Sélecteur de tri
+const sortSelect = document.createElement("select");
+
+[
+  { value: "date_desc", label: "Plus récentes" },
+  { value: "date_asc", label: "Plus anciennes" },
+  { value: "name_asc", label: "Nom A-Z" },
+  { value: "name_desc", label: "Nom Z-A" },
+  { value: "status", label: "Statut" }
+].forEach(option => {
+  const opt = document.createElement("option");
+  opt.value = option.value;
+  opt.textContent = option.label;
+  sortSelect.appendChild(opt);
+});
+
+sortSelect.addEventListener("change", () => {
+  currentSort = sortSelect.value;
+  renderTasks(currentTasks);
+});
+
+taskList.parentNode.insertBefore(sortSelect, taskList);
+
+function sortTasks(tasks) {
+  const sorted = [...tasks];
+
+  switch (currentSort) {
+    case "date_desc":
+      return sorted.sort((a, b) => b.id - a.id);
+
+    case "date_asc":
+      return sorted.sort((a, b) => a.id - b.id);
+
+    case "name_asc":
+      return sorted.sort((a, b) => a.name.localeCompare(b.name));
+
+    case "name_desc":
+      return sorted.sort((a, b) => b.name.localeCompare(a.name));
+
+    case "status":
+      return sorted.sort((a, b) => a.completed - b.completed);
+
+    default:
+      return sorted;
+  }
+}
 
 //Fonction pour le rendu d'une seule tâche
 function addTaskToUI(task) {
@@ -149,6 +197,7 @@ function renderTasks(tasks) {
   } else if (activeFilter === "Terminées") {
     filtered = tasks.filter((task) => task.completed);
   }
+  filtered = sortTasks(filtered);
   filtered.forEach((task) => taskList.appendChild(addTaskToUI(task)));
 }
 
