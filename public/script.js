@@ -7,7 +7,7 @@ const deadlineInput = document.getElementById("deadlineInput");
 //Application state (client-side): tasks list, active filter and sorting option
 let currentTasks = [];
 let activeFilter = "Toutes";
-let currentSort = "date_desc"; 
+let currentSort = "date_desc";
 
 //Conteneur notifications
 const notificationContainer = document.createElement("div");
@@ -30,7 +30,9 @@ function showNotification(message, type = "success") {
 const themeToggle = document.createElement("button");
 themeToggle.id = "themeToggle";
 themeToggle.textContent = "🌙"; // domyślnie moon
-document.body.insertBefore(themeToggle, document.body.firstChild);
+document
+  .getElementById("app")
+  .insertBefore(themeToggle, document.getElementById("taskList"));
 
 themeToggle.addEventListener("click", toggleTheme);
 
@@ -56,8 +58,18 @@ initTheme();
 
 //Boutons de filtre
 const filterContainer = document.createElement("div");
+filterContainer.className = "filter-container";
+filterContainer.style.display = "flex";
+filterContainer.style.alignItems = "center";
+filterContainer.style.gap = "10px";
+
+const filterLabel = document.createElement("label");
+filterLabel.textContent = "Filtrer par:";
+filterContainer.appendChild(filterLabel);
+
 ["Toutes", "En cours", "Terminées"].forEach((filter) => {
   const btn = document.createElement("button");
+  btn.className = "filter-btn";
   btn.textContent = filter;
   btn.addEventListener("click", () => {
     activeFilter = filter;
@@ -65,6 +77,7 @@ const filterContainer = document.createElement("div");
   });
   filterContainer.appendChild(btn);
 });
+
 taskList.parentNode.insertBefore(filterContainer, taskList);
 
 //Sélecteur de tri
@@ -77,8 +90,8 @@ const sortSelect = document.createElement("select");
   { value: "name_desc", label: "Nom Z-A" },
   { value: "status", label: "Statut" },
   { value: "deadline_asc", label: "Deadline proche" },
-  { value: "deadline_desc", label: "Deadline lointaine" }
-].forEach(option => {
+  { value: "deadline_desc", label: "Deadline lointaine" },
+].forEach((option) => {
   const opt = document.createElement("option");
   opt.value = option.value;
   opt.textContent = option.label;
@@ -90,7 +103,17 @@ sortSelect.addEventListener("change", () => {
   renderTasks(currentTasks);
 });
 
-taskList.parentNode.insertBefore(sortSelect, taskList);
+const sortContainer = document.createElement("div");
+sortContainer.style.display = "flex";
+sortContainer.style.alignItems = "center";
+sortContainer.style.gap = "10px";
+
+const sortLabel = document.createElement("label");
+sortLabel.textContent = "Trier par:";
+sortContainer.appendChild(sortLabel);
+sortContainer.appendChild(sortSelect);
+
+taskList.parentNode.insertBefore(sortContainer, taskList);
 
 function sortTasks(tasks) {
   const sorted = [...tasks];
@@ -130,7 +153,7 @@ function sortTasks(tasks) {
   }
 }
 
-//Fonction pour formater les dates 
+//Fonction pour formater les dates
 function formatDate(dateString) {
   if (!dateString) return "";
 
@@ -149,9 +172,24 @@ function addTaskToUI(task) {
   li.dataset.id = task.id;
   li.classList.add("fade-in"); //Animation fade-in
 
+  if (task.completed) {
+    li.classList.add("task-completed");
+  }
+
   const textSpan = document.createElement("span");
-  textSpan.textContent = task.name + (task.completed ? " ✓" : " ✗"); // Affiche l'état de la tâche
-  li.appendChild(textSpan);
+  textSpan.textContent = task.name;
+
+  const statusSpan = document.createElement("span");
+  statusSpan.className = task.completed ? "status-completed" : "status-pending";
+  statusSpan.textContent = task.completed ? " ✓" : " ✗";
+
+  const textContainer = document.createElement("div");
+  textContainer.style.display = "flex";
+  textContainer.style.alignItems = "center";
+  textContainer.appendChild(textSpan);
+  textContainer.appendChild(statusSpan);
+
+  li.appendChild(textContainer);
 
   const meta = document.createElement("small");
   meta.textContent =
@@ -206,17 +244,27 @@ function addTaskToUI(task) {
   });
 
   // Ajouter les boutons Terminer et Supprimer à chaque tâche
+  const buttonContainer = document.createElement("div");
+  buttonContainer.style.display = "flex";
+  buttonContainer.style.gap = "5px";
+
   //Terminer la tâche
   const completeBtn = document.createElement("button");
+  completeBtn.className = task.completed
+    ? "task-cancel-btn"
+    : "task-complete-btn";
   completeBtn.textContent = task.completed ? "Annuler" : "Terminer";
   completeBtn.addEventListener("click", () => toggleTask(task.id));
-  li.appendChild(completeBtn);
+  buttonContainer.appendChild(completeBtn);
 
   //Supprimer la tâche
   const deleteBtn = document.createElement("button");
+  deleteBtn.className = "task-delete-btn";
   deleteBtn.textContent = "Supprimer";
   deleteBtn.addEventListener("click", () => deleteTask(task.id));
-  li.appendChild(deleteBtn);
+  buttonContainer.appendChild(deleteBtn);
+
+  li.appendChild(buttonContainer);
 
   return li;
 }
