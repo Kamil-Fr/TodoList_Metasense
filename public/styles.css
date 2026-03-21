@@ -50,6 +50,7 @@ input[type="date"] {
   font-size: 14px;
   box-sizing: border-box;
   color: #333;
+  accent-color: #1e88e5;
 }
 
 input:focus {
@@ -303,6 +304,19 @@ body.dark-mode select {
   background-color: #1e1e1e;
   color: #fff;
   border: 1px solid #555;
+}
+
+body.dark-mode input[type="date"] {
+  color: #fff;
+  accent-color: white;
+}
+
+body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
 }
 
 body.dark-mode .deadline-label {
