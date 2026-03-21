@@ -9,6 +9,16 @@ let currentTasks = [];
 let activeFilter = "Toutes";
 let currentSort = "date_desc";
 
+//Aide au stockage local
+function saveTasksToLocalStorage(tasks) {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function loadTasksFromLocalStorage() {
+  const data = localStorage.getItem("tasks");
+  return data ? JSON.parse(data) : [];
+}
+
 //Conteneur notifications
 const notificationContainer = document.createElement("div");
 notificationContainer.id = "notificationContainer";
@@ -290,9 +300,14 @@ function loadTasks() {
     .then((res) => res.json())
     .then((tasks) => {
       currentTasks = tasks;
+      saveTasksToLocalStorage(currentTasks);
       renderTasks(currentTasks);
     })
-    .catch(() => showNotification("Échec du chargement des tâches", "error"));
+    .catch(() => { 
+      currentTasks = loadTasksFromLocalStorage();
+      renderTasks(currentTasks);
+      showNotification("Mode hors ligne", "error");
+    });
 }
 
 // Ajouter une tâche
@@ -317,12 +332,27 @@ function handleAddTask() {
         return;
       }
       currentTasks.push(data);
+      saveTasksToLocalStorage(currentTasks);
       taskInput.value = "";
       deadlineInput.value = "";
       renderTasks(currentTasks);
       showNotification("Tâche ajoutée avec succès", "success");
     })
-    .catch(() => showNotification("Erreur de connexion au serveur", "error"));
+    .catch(() => {
+      const offlineTask = {
+        id: Date.now(),
+        name,
+        completed: false,
+        createdAt: new Date().toISOString(),
+        deadline,
+      };
+      currentTasks.push(offlineTask);
+      saveTasksToLocalStorage(currentTasks);
+      taskInput.value = "";
+      deadlineInput.value = "";
+      renderTasks(currentTasks);
+      showNotification("Tâche ajoutée en mode hors ligne", "success");
+    });
 }
 
 // Ajouter l'événement de clic pour le bouton d'ajout
@@ -351,6 +381,7 @@ function toggleTask(id) {
     .then((updated) => {
       const index = currentTasks.findIndex((task) => task.id === id);
       currentTasks[index] = updated;
+      saveTasksToLocalStorage(currentTasks);
       renderTasks(currentTasks);
       showNotification(
         updated.completed ? "Tâche annulée" : "Tâche terminée",
@@ -373,6 +404,7 @@ function deleteTask(id) {
 
       const removeTask = () => {
         currentTasks = currentTasks.filter((task) => task.id !== id);
+        saveTasksToLocalStorage(currentTasks);
         renderTasks(currentTasks);
         showNotification("Tâche supprimée avec succès", "success");
       };
