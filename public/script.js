@@ -2,6 +2,7 @@
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
+const deadlineInput = document.getElementById("deadlineInput");
 
 //Application state (client-side): tasks list, active filter and sorting option
 let currentTasks = [];
@@ -74,7 +75,9 @@ const sortSelect = document.createElement("select");
   { value: "date_asc", label: "Plus anciennes" },
   { value: "name_asc", label: "Nom A-Z" },
   { value: "name_desc", label: "Nom Z-A" },
-  { value: "status", label: "Statut" }
+  { value: "status", label: "Statut" },
+  { value: "deadline_asc", label: "Deadline proche" },
+  { value: "deadline_desc", label: "Deadline lointaine" }
 ].forEach(option => {
   const opt = document.createElement("option");
   opt.value = option.value;
@@ -108,22 +111,53 @@ function sortTasks(tasks) {
     case "status":
       return sorted.sort((a, b) => a.completed - b.completed);
 
+    case "deadline_asc":
+      return sorted.sort((a, b) => {
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline) - new Date(b.deadline);
+      });
+
+    case "deadline_desc":
+      return sorted.sort((a, b) => {
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(b.deadline) - new Date(a.deadline);
+      });
+
     default:
       return sorted;
   }
+}
+
+//Fonction pour formater les dates 
+function formatDate(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
 }
 
 //Fonction pour le rendu d'une seule tâche
 function addTaskToUI(task) {
   const li = document.createElement("li");
   li.dataset.id = task.id;
+  li.classList.add("fade-in"); //Animation fade-in
 
   const textSpan = document.createElement("span");
   textSpan.textContent = task.name + (task.completed ? " ✓" : " ✗"); // Affiche l'état de la tâche
   li.appendChild(textSpan);
 
-  //Animation fade-in
-  li.classList.add("fade-in");
+  const meta = document.createElement("small");
+  meta.textContent =
+    `Ajoutée: ${formatDate(task.createdAt)}` +
+    (task.deadline ? ` | Deadline: ${formatDate(task.deadline)}` : "");
+  li.appendChild(meta);
 
   //Modifier une tâche
   textSpan.addEventListener("dblclick", () => {
@@ -215,6 +249,8 @@ function loadTasks() {
 // Ajouter une tâche
 function handleAddTask() {
   const name = taskInput.value.trim();
+  const deadline = deadlineInput.value || null;
+
   if (!name) {
     showNotification("Le nom de la tâche ne peut pas être vide", "error");
     return;
@@ -223,7 +259,7 @@ function handleAddTask() {
   fetch("/tasks", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, deadline }),
   })
     .then(async (response) => {
       const data = await response.json();
@@ -233,7 +269,9 @@ function handleAddTask() {
       }
       currentTasks.push(data);
       taskInput.value = "";
+      deadlineInput.value = "";
       renderTasks(currentTasks);
+      showNotification("Tâche ajoutée avec succès", "success");
     })
     .catch(() => showNotification("Erreur de connexion au serveur", "error"));
 }

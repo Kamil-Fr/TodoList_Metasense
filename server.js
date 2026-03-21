@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 
 // Base de données simulée
-let tasks = [{ id: 1, name: "Exemple de tâche", completed: false }];
+let tasks = [{ id: 1, name: "Exemple de tâche", completed: false, createdAt: new Date().toISOString(), deadline: null }];
 
 // Middleware
 app.use(express.json());
@@ -16,7 +16,7 @@ app.get("/tasks", (req, res) => res.json(tasks));
 
 // POST /tasks - créer une nouvelle tâche avec validation
 app.post("/tasks", (req, res) => {
-  const { name = "" } = req.body;
+  const { name = "", deadline = null } = req.body;
   const trimmedName = name.trim();
 
   // Validation : le champ «name» doit exister et ne pas être vide
@@ -24,7 +24,7 @@ app.post("/tasks", (req, res) => {
     return res.status(400).json({ error: "Le nom de la tâche est requis" });
   }
 
-  const task = { id: Date.now(), name: trimmedName, completed: false };
+  const task = { id: Date.now(), name: trimmedName, completed: false, createdAt: new Date().toISOString(), deadline: deadline || null };
   tasks.push(task);
   res.status(201).json(task);
 });
