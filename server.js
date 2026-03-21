@@ -45,6 +45,9 @@ app.put("/tasks/:id", (req, res) => {
   if (req.body.hasOwnProperty("name") && req.body.name.trim() !== "") {
     task.name = req.body.name.trim();
   }
+   if (req.body.hasOwnProperty('deadline')) {
+    task.deadline = req.body.deadline || null;
+  }
 
   res.json(task);
 });

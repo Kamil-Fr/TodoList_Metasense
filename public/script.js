@@ -202,7 +202,7 @@ function addTaskToUI(task) {
     const input = document.createElement("input");
     input.type = "text";
     input.value = task.name;
-    li.replaceChild(input, textSpan);
+    textSpan.parentNode.replaceChild(input, textSpan);
     input.focus();
 
     let isSaving = false; // Flag pour éviter les sauvegardes multiples
@@ -214,6 +214,7 @@ function addTaskToUI(task) {
 
       if (!newName) {
         showNotification("Le nom de la tâche ne peut pas être vide", "error");
+        renderTasks(currentTasks);
         isSaving = false;
         return;
       }
