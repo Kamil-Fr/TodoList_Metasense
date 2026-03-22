@@ -32,6 +32,7 @@
 5. Ouvrir `public/index.html` dans un navigateur.  
 
 ## 🛠️ Structure du projet  
+```
 public/
 ├── index.html               # Interface utilisateur
 ├── styles/
@@ -48,6 +49,7 @@ public/
 server.js                    # API Node.js/Express
 package.json                 # Dépendances
 NOTES.md                     # Documentation technique et justification des choix
+```
 
 ## 🔗 API Endpoints  
 | Méthode | URL          | Action                 |  
