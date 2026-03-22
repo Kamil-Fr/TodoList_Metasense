@@ -1,0 +1,127 @@
+/* Dark Mode */
+body.dark-mode {
+  background: #121212;
+  color: #eee;
+}
+
+body.dark-mode #app {
+  background-color: #1e1e1e;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode li {
+  background: #2a2a2a;
+  border: 1px solid #444;
+}
+
+body.dark-mode li:hover {
+  background: #333;
+}
+
+body.dark-mode li.task-completed {
+  border-color: #4caf50;
+  border-width: 2px;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+  background-color: #1e1e1e;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+body.dark-mode input[type="date"] {
+  color: #fff;
+  accent-color: white;
+}
+
+body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+}
+
+body.dark-mode .deadline-label {
+  color: white;
+}
+
+body.dark-mode input::placeholder {
+  color: white;
+}
+
+body.dark-mode li small {
+  color: white;
+}
+
+body.dark-mode .status-completed {
+  color: #81c784;
+}
+
+body.dark-mode .status-pending {
+  color: #ef5350;
+}
+
+body.dark-mode .filter-btn {
+  background-color: #1e88e5;
+  color: white;
+}
+
+body.dark-mode .filter-btn:hover {
+  background-color: #1565c0;
+}
+
+body.dark-mode .task-complete-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+body.dark-mode .task-complete-btn:hover {
+  background-color: #45a049;
+}
+
+body.dark-mode .task-cancel-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+body.dark-mode .task-cancel-btn:hover {
+  background-color: #da190b;
+}
+
+body.dark-mode .task-delete-btn {
+  background-color: #ff9800;
+  color: black;
+}
+
+body.dark-mode .task-delete-btn:hover {
+  background-color: #e68900;
+}
+
+body.dark-mode button {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Bouton de basculement de thème */
+#themeToggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgb(23, 179, 232);
+  border: 2px solid rgb(26, 99, 193);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+#themeToggle:hover {
+  background-color: #add8e6;
+}

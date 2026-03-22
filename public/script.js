@@ -1,16 +1,28 @@
+/* =========================
+   DOM ELEMENTS
+========================= */
+
 // Récupérer les éléments
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
 const deadlineInput = document.getElementById("deadlineInput");
 
-//Authentification state
+/* =========================
+   APPLICATION STATE
+========================= */
+
+//Authentification state 
 let authToken = localStorage.getItem("token");
 
 //Application state (client-side): tasks list, active filter and sorting option
 let currentTasks = [];
 let activeFilter = "Toutes";
 let currentSort = "date_desc";
+
+/* =========================
+   LOCAL STORAGE
+========================= */
 
 //Aide au stockage local
 function saveTasksToLocalStorage(tasks) {
@@ -21,6 +33,10 @@ function loadTasksFromLocalStorage() {
   const data = localStorage.getItem("tasks");
   return data ? JSON.parse(data) : [];
 }
+
+/* =========================
+   NOTIFICATIONS
+========================= */
 
 //Conteneur notifications
 const notificationContainer = document.createElement("div");
@@ -39,6 +55,10 @@ function showNotification(message, type = "success") {
   }, 2000);
 }
 
+/* =========================
+   AUTHENTICATION
+========================= */
+
 //Fonction de connection
 function login() {
   const username = prompt("Entrez votre nom :");
@@ -55,6 +75,10 @@ function login() {
 if (!authToken) {
   login();
 }
+
+/* =========================
+   THEME (DARK MODE)
+========================= */
 
 //Dark Mode
 const themeToggle = document.createElement("button");
@@ -86,6 +110,10 @@ function initTheme() {
 
 initTheme();
 
+/* =========================
+   FILTER UI
+========================= */
+
 //Boutons de filtre
 const filterContainer = document.createElement("div");
 filterContainer.className = "filter-container";
@@ -109,6 +137,10 @@ filterContainer.appendChild(filterLabel);
 });
 
 taskList.parentNode.insertBefore(filterContainer, taskList);
+
+/* =========================
+   SORTING UI
+========================= */
 
 //Sélecteur de tri
 const sortSelect = document.createElement("select");
@@ -145,6 +177,10 @@ sortContainer.appendChild(sortLabel);
 sortContainer.appendChild(sortSelect);
 
 taskList.parentNode.insertBefore(sortContainer, taskList);
+
+/* =========================
+   SORTING LOGIC
+========================= */
 
 function sortTasks(tasks) {
   const sorted = [...tasks];
@@ -184,6 +220,10 @@ function sortTasks(tasks) {
   }
 }
 
+/* =========================
+   UTILITIES
+========================= */
+
 //Fonction pour formater les dates
 function formatDate(dateString) {
   if (!dateString) return "";
@@ -197,7 +237,10 @@ function formatDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
-//Drag & Drop
+/* =========================
+   DRAG & DROP
+========================= */
+
 function getDragAfterElement(container, y) {
   const elements = [...container.querySelectorAll("li:not(.dragging)")];
 
@@ -225,6 +268,46 @@ function updateTaskOrder() {
 
   saveTasksToLocalStorage(currentTasks);
 }
+
+//Drag sur la liste
+taskList.addEventListener("dragover", (e) => {
+  e.preventDefault();
+
+  const dragging = document.querySelector(".dragging");
+  const afterElement = getDragAfterElement(taskList, e.clientY);
+
+  if (!dragging) return;
+
+  if (afterElement == null) {
+    taskList.appendChild(dragging);
+  } else {
+    taskList.insertBefore(dragging, afterElement);
+  }
+});
+
+/* =========================
+   RENDERING
+========================= */
+
+//Tâches de rendu avec prise en compte des filtres
+function renderTasks(tasks) {
+  taskList.innerHTML = "";
+  let filtered = tasks;
+
+  if (activeFilter === "En cours") {
+    filtered = tasks.filter((task) => !task.completed);
+  } else if (activeFilter === "Terminées") {
+    filtered = tasks.filter((task) => task.completed);
+  }
+  if (currentSort !== "manual") {
+    filtered = sortTasks(filtered);
+  }
+  filtered.forEach((task) => taskList.appendChild(addTaskToUI(task)));
+}
+
+/* =========================
+   TASK CRUD
+========================= */
 
 //Fonction pour le rendu d'une seule tâche
 function addTaskToUI(task) {
@@ -339,38 +422,6 @@ function addTaskToUI(task) {
   return li;
 }
 
-//Drag sur la liste
-taskList.addEventListener("dragover", (e) => {
-  e.preventDefault();
-
-  const dragging = document.querySelector(".dragging");
-  const afterElement = getDragAfterElement(taskList, e.clientY);
-
-  if (!dragging) return;
-
-  if (afterElement == null) {
-    taskList.appendChild(dragging);
-  } else {
-    taskList.insertBefore(dragging, afterElement);
-  }
-});
-
-//Tâches de rendu avec prise en compte des filtres
-function renderTasks(tasks) {
-  taskList.innerHTML = "";
-  let filtered = tasks;
-
-  if (activeFilter === "En cours") {
-    filtered = tasks.filter((task) => !task.completed);
-  } else if (activeFilter === "Terminées") {
-    filtered = tasks.filter((task) => task.completed);
-  }
-  if (currentSort !== "manual") {
-    filtered = sortTasks(filtered);
-  }
-  filtered.forEach((task) => taskList.appendChild(addTaskToUI(task)));
-}
-
 // Charger les tâches au démarrage
 function loadTasks() {
   fetch("/tasks", {
@@ -446,18 +497,6 @@ function handleAddTask() {
     });
 }
 
-// Ajouter l'événement de clic pour le bouton d'ajout
-addTaskBtn.addEventListener("click", () => {
-  handleAddTask();
-});
-
-// Ajouter l'événement de pression de touche pour l'entrée de tâche
-taskInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    handleAddTask();
-  }
-});
-
 // Terminer une tâche
 function toggleTask(id) {
   const task = currentTasks.find((task) => task.id === id);
@@ -521,6 +560,26 @@ function deleteTask(id) {
     })
     .catch(() => showNotification("Erreur de connexion au serveur", "error"));
 }
+
+/* =========================
+   EVENT LISTENERS
+========================= */
+
+// Ajouter l'événement de clic pour le bouton d'ajout
+addTaskBtn.addEventListener("click", () => {
+  handleAddTask();
+});
+
+// Ajouter l'événement de pression de touche pour l'entrée de tâche
+taskInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    handleAddTask();
+  }
+});
+
+/* =========================
+   INIT
+========================= */
 
 // Initialisation de l'application
 loadTasks();

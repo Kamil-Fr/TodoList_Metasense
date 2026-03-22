@@ -1,0 +1,23 @@
+/* Deadline */
+.deadline-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.deadline-label {
+  font-size: 13px;
+  color: #555;
+}
+
+
+
+
+
+
+
+
+
+
+

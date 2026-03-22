@@ -1,0 +1,26 @@
+/* Boutons de filtre */
+.filter-btn {
+  background-color: #1e88e5;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-family: "Pangolin", Arial, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background-color: #1565c0;
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+select {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-family: "Pangolin", Arial, sans-serif;
+}

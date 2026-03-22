@@ -1,0 +1,13 @@
+/* Drag & Drop */
+.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+
+li {
+  cursor: grab;
+}
+
+li:active {
+  cursor: grabbing;
+}
