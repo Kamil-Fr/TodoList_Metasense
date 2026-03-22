@@ -1,12 +1,27 @@
-# To-Do List Boilerplate  
-**Base pour un test technique de développement web**  
+# To-Do List MetaSense  
+**Application web de gestion de tâches développée dans le cadre d’un test technique.** 
+
+## 🚀 Fonctionnalités
+- ✅ Ajouter, modifier et supprimer des tâches  
+- 📅 Ajouter une deadline (optionnelle)  
+- 🔍 Filtrer les tâches (Toutes / En cours / Terminées)  
+- 🔄 Trier les tâches (date, nom, statut, deadline, ordre manuel)  
+- 🌙 Mode sombre (dark mode)  
+- 💾 Sauvegarde locale (mode hors ligne)  
+- 🔔 Notifications utilisateur  
+- 🖱️ Drag & Drop pour réorganiser les tâches 
+
+## 🛠️ Technologies utilisées
+- Frontend : HTML, CSS, JavaScript
+- Backend : Node.js, Express
+- Stockage : LocalStorage + API REST
 
 ## 🚀 Installation  
 1. Cloner le dépôt :  
-`git clone https://github.com/Meta-sense/TodoList_BoilerPlate.git`
+`git clone https://github.com/Kamil-Fr/TodoList_Metasense.git`
 
 2. Se placer dans le dossier :  
-`cd TodoList_BoilerPlate`
+`cd TodoList_Metasense`
 
 3. Installer les dépendances :  
 `npm install`
@@ -20,9 +35,19 @@
 public/  
 ├── index.html # Interface utilisateur  
 ├── styles.css # Styles CSS  
-└── script.js # Logique front-end  
+│   ├── base.css
+│   ├── tasks.css
+│   ├── filters.css
+│   ├── notifications.css
+│   ├── theme.css
+│   ├── draganddrop.css
+│   └── deadline.css
+├── assets/
+│   └── bg_todolist.jpg
+└── script.js # Logique front-end (CRUD, filtres, tri, dark mode) 
 server.js # API Node.js/Express  
-package.json # Dépendances  
+package.json # Dépendances 
+NOTES.md # Documentation technique et justification des choix 
 
 ## 🔗 API Endpoints  
 | Méthode | URL          | Action                 |  
@@ -32,4 +57,4 @@ package.json # Dépendances
 | PUT     | `/tasks/:id` | Modifier une tâche     |  
 | DELETE  | `/tasks/:id` | Supprimer une tâche    |  
 
-*Documentez vos choix techniques dans le fichier NOTES.md*  
+ 

@@ -38,7 +38,7 @@ app.put("/tasks/:id", (req, res) => {
     return res.status(404).json({ error: "Tâche non trouvée" });
   }
 
-  // Nous pouvons activer l'option «Terminé» ou mettre à jour le nom si celui-ci a été fourni
+  // Possibilité d'activer l'option «Terminé» ou de mettre à jour le nom si celui-ci a été fourni
   if (req.body.hasOwnProperty("completed")) {
     task.completed = req.body.completed;
   }
