@@ -32,9 +32,9 @@
 5. Ouvrir `public/index.html` dans un navigateur.  
 
 ## 🛠️ Structure du projet  
-public/  
-├── index.html # Interface utilisateur  
-├── styles.css # Styles CSS  
+public/
+├── index.html               # Interface utilisateur
+├── styles/
 │   ├── base.css
 │   ├── tasks.css
 │   ├── filters.css
@@ -44,10 +44,10 @@ public/
 │   └── deadline.css
 ├── assets/
 │   └── bg_todolist.jpg
-└── script.js # Logique front-end (CRUD, filtres, tri, dark mode) 
-server.js # API Node.js/Express  
-package.json # Dépendances 
-NOTES.md # Documentation technique et justification des choix 
+└── script.js                # Logique front-end (CRUD, filtres, tri, dark mode)
+server.js                    # API Node.js/Express
+package.json                 # Dépendances
+NOTES.md                     # Documentation technique et justification des choix
 
 ## 🔗 API Endpoints  
 | Méthode | URL          | Action                 |  
