@@ -4,6 +4,9 @@ const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
 const deadlineInput = document.getElementById("deadlineInput");
 
+//Authentification state
+let authToken = localStorage.getItem("token");
+
 //Application state (client-side): tasks list, active filter and sorting option
 let currentTasks = [];
 let activeFilter = "Toutes";
@@ -36,10 +39,27 @@ function showNotification(message, type = "success") {
   }, 2000);
 }
 
+//Fonction de connection
+function login() {
+  const username = prompt("Entrez votre nom :");
+
+  if (!username) return;
+
+  authToken = "mysecrettoken";
+  localStorage.setItem("token", authToken);
+
+  showNotification("Connecté avec succès", "success");
+  loadTasks();
+}
+
+if (!authToken) {
+  login();
+}
+
 //Dark Mode
 const themeToggle = document.createElement("button");
 themeToggle.id = "themeToggle";
-themeToggle.textContent = "🌙"; // domyślnie moon
+themeToggle.textContent = "🌙";
 document
   .getElementById("app")
   .insertBefore(themeToggle, document.getElementById("taskList"));
@@ -192,20 +212,18 @@ function getDragAfterElement(container, y) {
         return closest;
       }
     },
-    { offset: Number.NEGATIVE_INFINITY }
+    { offset: Number.NEGATIVE_INFINITY },
   ).element;
 }
 
 function updateTaskOrder() {
   const ids = [...taskList.querySelectorAll("li")].map((li) =>
-    Number(li.dataset.id)
+    Number(li.dataset.id),
   );
 
-  currentTasks.sort(
-    (a, b) => ids.indexOf(a.id) - ids.indexOf(b.id)
-  );
+  currentTasks.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
 
-  saveTasksToLocal(currentTasks);
+  saveTasksToLocalStorage(currentTasks);
 }
 
 //Fonction pour le rendu d'une seule tâche
@@ -349,20 +367,22 @@ function renderTasks(tasks) {
   }
   if (currentSort !== "manual") {
     filtered = sortTasks(filtered);
-  } 
+  }
   filtered.forEach((task) => taskList.appendChild(addTaskToUI(task)));
 }
 
 // Charger les tâches au démarrage
 function loadTasks() {
-  fetch("/tasks")
+  fetch("/tasks", {
+    headers: { Authorization: authToken },
+  })
     .then((res) => res.json())
     .then((tasks) => {
       currentTasks = tasks;
       saveTasksToLocalStorage(currentTasks);
       renderTasks(currentTasks);
     })
-    .catch(() => { 
+    .catch(() => {
       currentTasks = loadTasksFromLocalStorage();
       renderTasks(currentTasks);
       showNotification("Mode hors ligne", "error");
@@ -385,17 +405,29 @@ function handleAddTask() {
     body: JSON.stringify({ name, deadline }),
   })
     .then(async (response) => {
-      const data = await response.json();
+      const taskData = await response.json();
+      
       if (!response.ok) {
         showNotification(data.error || "Échec de l'ajout de la tâche", "error");
         return;
       }
-      currentTasks.push(data);
+      currentTasks.push(taskData);
       saveTasksToLocalStorage(currentTasks);
       taskInput.value = "";
       deadlineInput.value = "";
       renderTasks(currentTasks);
-      showNotification("Tâche ajoutée avec succès", "success");
+      fetch("https://dummyjson.com/quotes/random")
+        .then((res) => res.json())
+        .then((data) => {
+          showNotification(
+            `Tâche ajoutée avec succès. "${data.quote}" - ${data.author}`,
+            "success",
+          );
+        })
+        .catch((err) => {
+          console.error("Erreur lors de la récupération de la citation :", err);
+          showNotification("Tâche ajoutée avec succès", "success");
+        });
     })
     .catch(() => {
       const offlineTask = {
@@ -433,7 +465,7 @@ function toggleTask(id) {
 
   fetch(`/tasks/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "Authorization": authToken },
     body: JSON.stringify({ completed: !task.completed }),
   })
     .then((res) => res.json())
