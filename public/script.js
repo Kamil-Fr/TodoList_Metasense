@@ -101,6 +101,7 @@ const sortSelect = document.createElement("select");
   { value: "status", label: "Statut" },
   { value: "deadline_asc", label: "Deadline proche" },
   { value: "deadline_desc", label: "Deadline lointaine" },
+  { value: "manual", label: "Ordre manuel" },
 ].forEach((option) => {
   const opt = document.createElement("option");
   opt.value = option.value;
@@ -176,11 +177,51 @@ function formatDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
+//Drag & Drop
+function getDragAfterElement(container, y) {
+  const elements = [...container.querySelectorAll("li:not(.dragging)")];
+
+  return elements.reduce(
+    (closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+
+      if (offset < 0 && offset > closest.offset) {
+        return { offset, element: child };
+      } else {
+        return closest;
+      }
+    },
+    { offset: Number.NEGATIVE_INFINITY }
+  ).element;
+}
+
+function updateTaskOrder() {
+  const ids = [...taskList.querySelectorAll("li")].map((li) =>
+    Number(li.dataset.id)
+  );
+
+  currentTasks.sort(
+    (a, b) => ids.indexOf(a.id) - ids.indexOf(b.id)
+  );
+
+  saveTasksToLocal(currentTasks);
+}
+
 //Fonction pour le rendu d'une seule tâche
 function addTaskToUI(task) {
   const li = document.createElement("li");
   li.dataset.id = task.id;
   li.classList.add("fade-in"); //Animation fade-in
+
+  li.draggable = true;
+  li.addEventListener("dragstart", () => {
+    li.classList.add("dragging");
+  });
+  li.addEventListener("dragend", () => {
+    li.classList.remove("dragging");
+    updateTaskOrder();
+  });
 
   if (task.completed) {
     li.classList.add("task-completed");
@@ -280,6 +321,22 @@ function addTaskToUI(task) {
   return li;
 }
 
+//Drag sur la liste
+taskList.addEventListener("dragover", (e) => {
+  e.preventDefault();
+
+  const dragging = document.querySelector(".dragging");
+  const afterElement = getDragAfterElement(taskList, e.clientY);
+
+  if (!dragging) return;
+
+  if (afterElement == null) {
+    taskList.appendChild(dragging);
+  } else {
+    taskList.insertBefore(dragging, afterElement);
+  }
+});
+
 //Tâches de rendu avec prise en compte des filtres
 function renderTasks(tasks) {
   taskList.innerHTML = "";
@@ -290,7 +347,9 @@ function renderTasks(tasks) {
   } else if (activeFilter === "Terminées") {
     filtered = tasks.filter((task) => task.completed);
   }
-  filtered = sortTasks(filtered);
+  if (currentSort !== "manual") {
+    filtered = sortTasks(filtered);
+  } 
   filtered.forEach((task) => taskList.appendChild(addTaskToUI(task)));
 }
 

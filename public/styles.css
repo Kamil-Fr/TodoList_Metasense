@@ -401,3 +401,17 @@ body.dark-mode button {
 #themeToggle:hover {
   background-color: #add8e6;
 }
+
+/* Drag & Drop */
+.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+
+li {
+  cursor: grab;
+}
+
+li:active {
+  cursor: grabbing;
+}
